@@ -133,12 +133,9 @@ pub fn sign(sk: &[u8], m: &[u8]) -> [u8; SIGN_BYTES]
         let ct0 = inv_Ntt(&p_mult_v(&c, &t0));
         let (h, cnt) = make_hint(&Neg(&ct0), &v_add(&tmp, &ct0));
        
-        
         /* check norm */
         if inf_norm(&ct0) >= GAMMA2 as i32 || cnt > OMEGA as i32 { continue;}  
 
-         /* assert the hint works */
-        /* use(h, tmp+ct0) = high(tmp) */
         let mut r1 = VecPoly::<K>::default();
         for i in 0..K
         {
@@ -191,9 +188,9 @@ pub fn verify(pk: &[u8], m: &[u8], sig: &[u8]) -> bool
 
     let ct1 = p_mult_v(&c, &t1);
     let az = m_mult_v(&A, &Ntt(&z));
-
-    let tmp = v_sub(&az, &ct1);
-
+    let tmp = inv_Ntt(&v_sub(&az, &ct1));
+    
+    
     let mut w1 = VecPoly::<K>::default();
     for i in 0..K
     {
