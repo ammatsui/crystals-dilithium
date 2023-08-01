@@ -1,4 +1,4 @@
-use crate::{params::*, poly::*, bit_packing::*, ntt::ntt_};
+use crate::{params::*, poly::*, bit_packing::*};
 use sha3::{Shake128, Shake256, digest::{Update, ExtendableOutput, XofReader}};
 
 
@@ -38,15 +38,12 @@ fn p_uniform(a: &mut Poly, rho: &[u8], nonce: u16)
         t |= (b[2] as u32) << 16;
         t &= 0x7FFFFF;
 
-        // t = ((b[2] as u32) << 16) + ((b[1] as u32) << 8) + (b[0] as u32) as u32;
-        // t &= 0x7FFFFF;
         if t < Q as u32
         {
             a.coeff[i] = t as i32;
             i += 1;
         }
     }
-    //crate::ntt::ntt_(&mut a.coeff);
     a.ntt = true;
 }
 

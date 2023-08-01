@@ -23,7 +23,7 @@ pub fn keyGen() -> ([u8; PK_BYTES], [u8; SK_BYTES])
     rhoprime.copy_from_slice(&seed[SEEDBYTES..SEEDBYTES + CRHBYTES]);
     key.copy_from_slice(&seed[SEEDBYTES + CRHBYTES..]);
     /* generation algorithm */
-    let A = expandA( &rho);
+    let A = expandA(&rho);
     let (s1, s2) = expandS(&rhoprime);
     let mut t: VecPoly<K> = inv_Ntt(&m_mult_v(&A, &Ntt(&s1)));
     t = v_add(&t, &s2);
@@ -38,7 +38,7 @@ pub fn keyGen() -> ([u8; PK_BYTES], [u8; SK_BYTES])
     crh(&pk, &mut tr);
     /* pack secret key */
     pack_sk(&mut sk, &rho, &tr, &key, &t0, &s1, &s2);
-    
+
     (pk, sk)
 }
 
@@ -64,12 +64,13 @@ pub fn sign(sk: &[u8], m: &[u8]) -> [u8; SIGN_BYTES]
 
     let A = expandA(&rho);
 
-    /* CRH(tr+message) */
+    /* mu = CRH(tr+message) */
     let mut seed = [0u8; MESSAGE+SEEDBYTES];
     seed[..SEEDBYTES].copy_from_slice(&tr[..]);
     seed[SEEDBYTES..SEEDBYTES+m.len()].copy_from_slice(&m[..m.len()]);
     crh(&seed[..m.len()+SEEDBYTES], &mut mu);
-
+   
+  
 
     /* CRH(key + CRH(tr+message)) */
     let mut seed = [0u8; SEEDBYTES+CRHBYTES];
@@ -95,6 +96,7 @@ pub fn sign(sk: &[u8], m: &[u8]) -> [u8; SIGN_BYTES]
         {
             w1.poly[i] = highBits(&w.poly[i]);
         }
+       
 
         /* pack w1 */
         let mut wp = [0u8; W1_BYTES*K];
@@ -171,14 +173,25 @@ pub fn verify(pk: &[u8], m: &[u8], sig: &[u8]) -> bool
     unpack_pk(&pk, &mut rho, &mut t1);
     unpack_sign(&sig, &mut ch, &mut z, &mut h); 
 
+    /* check cnt and inf_norm(&z) here */
+    if inf_norm(&z) > (GAMMA1 as i32 - BETA as i32) {return false;}
+
     let A = expandA(&rho);
     
     /* generate mu */
-    crh(&pk, &mut mu);
-    let mut seed = [0u8; CRHBYTES+MESSAGE];
-    seed[..CRHBYTES].clone_from_slice(&mu[..]);
-    seed[CRHBYTES..CRHBYTES+m.len()].copy_from_slice(&m[..m.len()]);
-    crh(&seed[..CRHBYTES + m.len()], &mut mu);
+    let mut tr = [0u8; SEEDBYTES];
+    crh(&pk, &mut tr);
+
+    let mut seed = [0u8; MESSAGE+SEEDBYTES];
+    seed[..SEEDBYTES].copy_from_slice(&tr[..]);
+    seed[SEEDBYTES..SEEDBYTES+m.len()].copy_from_slice(&m[..m.len()]);
+    crh(&seed[..m.len()+SEEDBYTES], &mut mu);
+  
+    // crh(&pk, &mut mu); /* == tr = crh(pk) */
+    // let mut seed = [0u8; CRHBYTES+MESSAGE];
+    // seed[..CRHBYTES].clone_from_slice(&mu[..]);
+    // seed[CRHBYTES..CRHBYTES+m.len()].copy_from_slice(&m[..m.len()]);
+    // crh(&seed[..CRHBYTES + m.len()], &mut mu); /* == crh(tr + m) */
 
     let mut c = SampleInBall(&ch);
     c = ntt(&c);
@@ -190,15 +203,13 @@ pub fn verify(pk: &[u8], m: &[u8], sig: &[u8]) -> bool
     let az = m_mult_v(&A, &Ntt(&z));
     let tmp = inv_Ntt(&v_sub(&az, &ct1));
     
-    
     let mut w1 = VecPoly::<K>::default();
     for i in 0..K
     {
         w1.poly[i] = useHint(&h.poly[i], &tmp.poly[i]);
     }
-
-    /* check */
-    assert!(inf_norm(&z) < (GAMMA1 as i32 - BETA as i32));
+   
+    
     /* pack w1 */
     let mut wp = [0u8; W1_BYTES*K];
     for i in 0..K
@@ -213,7 +224,7 @@ pub fn verify(pk: &[u8], m: &[u8], sig: &[u8]) -> bool
     seed[CRHBYTES..].copy_from_slice(&wp[..]);
     crh(&seed, &mut c_hat);
     
-    assert_eq!(c_hat, ch);
+    
     for i in 0..SEEDBYTES 
     {
         if c_hat[i] != ch[i] {return false;}

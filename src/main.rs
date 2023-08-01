@@ -6,40 +6,37 @@ pub mod expand;
 pub mod bit_packing;
 pub mod dilithium;
 
+use sha3::{Shake128, Shake256, digest::{Update, ExtendableOutput, XofReader}};
 use crate::params::*;
-use crate::utils::*;
 
-pub fn cmod(a: i32) -> i32
-{
-   let mut t = a >> 31;
-   t = a - (t & 2 * a);
-   t
-}
+
 
 fn main()
 {
-   // let z = (ALPHA>>1 ) as i32 ;
-   // assert_eq!(crate::utils::cmod(z, Q as i32), cmod(z));
-   // assert!(cmod(z).abs() <= (ALPHA>>1) as i32);
-   // assert!(z <= (ALPHA>>1) as i32);
-   //  let r = 2<<12;  //r < 2<<13 - 1
-   //  let (r1,  r0) = decompose_(r);
-   //  assert!(r0 <= (ALPHA>>1) as i32);
-   //  assert!(cmod(r0).abs() <= (ALPHA>>1) as i32);
-   //  if r0 > 0 
-   //  {
-   //    // println!("{}", r0);
-   //    // println!("{}", z);
-   //    assert!(-(ALPHA as i32)/2 < r0 + z);
-   //    assert!(r0 + z <= ALPHA as i32);
-   //  }
-   //  else 
-   //  {
-   //    assert!(-(ALPHA as i32) <= r0 + z);
-   //    assert!(r0 + z <= (ALPHA as i32)/2);
-   //  }
-   //  assert_eq!(useHint_(makeHint_(z, r), r), highBits_(z+r));
+   // let rho = [121, 251, 146, 198, 80, 156, 206, 181, 87, 3, 96, 206, 220, 19, 239, 221, 81, 50, 248, 130, 149, 192, 182, 73, 237, 144, 243, 178, 29, 140, 187, 220];
+   // let nonce = 4;
+   //  let mut seed = [0u8; SEEDBYTES + 2];
+   //  seed[..SEEDBYTES].copy_from_slice(&rho[0..SEEDBYTES]);
+   //  seed[SEEDBYTES] = nonce as u8;
+   //  seed[SEEDBYTES+1] = (nonce>>8) as u8;
+   //  let mut hasher = Shake128::default();
+   //  hasher.update(&seed);
+   //  let mut reader = hasher.finalize_xof();
+   //  let mut b = [0u8; 32];
+   //  reader.read(&mut b);
 
+
+   //  let mut seed = [0u8; SEEDBYTES + 2];
+   //  seed[..SEEDBYTES].copy_from_slice(&rho[0..SEEDBYTES]);
+   //  seed[SEEDBYTES] = nonce as u8;
+   //  seed[SEEDBYTES+1] = (nonce>>8) as u8;
+   //  let mut hasher = Shake128::default();
+   //  hasher.update(&seed);
+   //  let mut reader = hasher.finalize_xof();
+   //  let mut bb = [0u8; 32];
+   //  reader.read(&mut bb);
+
+   //  assert_eq!(b, bb);
 
    let (pk, sk) = dilithium::keyGen();
    let sig = dilithium::sign(&sk, &pk[..10]);
