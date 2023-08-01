@@ -94,7 +94,9 @@ pub fn smult(s: i32, a: &Poly) -> Poly
     let mut res = Poly::default();
     for i in 0..N 
     {
-        res.coeff[i] = cmod(s * a.coeff[i], Q as i32);
+        res.coeff[i] = s*a.coeff[i];//cmod(s * a.coeff[i], Q as i32);
+        let t = (((Q as i64 + res.coeff[i] as i64)<<32 ) % (Q as i64)) as i32; 
+        res.coeff[i] = crate::utils::cmod(t, Q as i32); 
     }
     res.ntt = a.ntt;
     res

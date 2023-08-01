@@ -110,37 +110,8 @@ pub fn sign(sk: &[u8], m: &[u8]) -> [u8; SIGN_BYTES]
         crh(&seed, &mut c_hat);
 
         let mut c = SampleInBall(&c_hat);
-       assert_eq!(c.coeff, inv_ntt(&ntt(&c)).coeff);
         c = ntt(&c);
-
-        let mut cc = VecPoly::<L>::default();
-        for i in 0..L 
-        {
-            cc.poly[i].coeff = c.coeff;
-            cc.poly[i].ntt = c.ntt;
-        }
-        
-        // println!("norm c {}", p_infnorm(&inv_ntt(&c)));
-        // println!("norm s1 {}", inf_norm(&inv_Ntt(&s1)));
-        // println!("{}, BETA {}",inf_norm(&inv_Ntt(&p_mult_v(&c, &s1))), BETA);
-        // for i in 0..L 
-        // {
-        //     // for j in 0..N {
-        //     //    let a = ((Q as i64 + (inv_Ntt(&p_mult_v(&c, &s1)).poly[i].coeff[j] as i64)<<32 ) % (Q as i64)) as i32;
-        //     // assert_eq!((slow_mult(&inv_ntt(&c), &inv_Ntt(&s1).poly[i]).coeff[j]), 
-        //     //              crate::utils::cmod(a, Q as i32)); 
-        //     //             }
-        //     assert_eq!(slow_mult(&inv_ntt(&c), &inv_Ntt(&s1).poly[i]).coeff, inv_Ntt(&p_mult_v(&c, &s1)).poly[i].coeff);
-        //     println!("{:?}", (s1).poly[i].coeff);
-        //     println!("{:?}", inv_Ntt(&s1).poly[i].coeff);
-        //     println!("{:?}", inv_ntt(&c).coeff);
-        //     println!("{:?}", (p_mult_v(&c, &s1)).poly[i].coeff);
-        //     println!("{:?}", inv_Ntt(&p_mult_v(&c, &s1)).poly[i].coeff);
-        //     println!("cs1 poly norm {}", p_infnorm(&inv_Ntt(&p_mult_v(&c, &s1)).poly[i]));
-        // }
-        assert!(inf_norm(&inv_Ntt(&p_mult_v(&c, &s1))) <= BETA as i32);
-
-        
+          
         /* z = y + c s1*/
         z = v_add(&y, &inv_Ntt(&p_mult_v(&c, &s1)));
         /* tmp = w - c s2 */
@@ -156,7 +127,7 @@ pub fn sign(sk: &[u8], m: &[u8]) -> [u8; SIGN_BYTES]
 
         /* check norm (check if it reveals secret) */ 
         if inf_norm(&z) >= (GAMMA1 as i32 - BETA as i32) || inf_norm(&r0) >= (GAMMA2 as i32 - BETA as i32) 
-        { println!("z norm {}, gamma2-beta {}", inf_norm(&z), GAMMA1 as i32 - BETA as i32); continue;}
+        { continue;}
 
         /* make hint */
         let ct0 = inv_Ntt(&p_mult_v(&c, &t0));
@@ -164,8 +135,7 @@ pub fn sign(sk: &[u8], m: &[u8]) -> [u8; SIGN_BYTES]
        
         
         /* check norm */
-        if inf_norm(&ct0) >= GAMMA2 as i32 || cnt > OMEGA as i32 
-        { println!("cto norm {}, gamma {}", inf_norm(&ct0), GAMMA2 as i32); continue;}  
+        if inf_norm(&ct0) >= GAMMA2 as i32 || cnt > OMEGA as i32 { continue;}  
 
          /* assert the hint works */
         /* use(h, tmp+ct0) = high(tmp) */
@@ -174,6 +144,7 @@ pub fn sign(sk: &[u8], m: &[u8]) -> [u8; SIGN_BYTES]
         {
             r1.poly[i] = highBits(&tmp.poly[i]);
         }
+        
         for i in 0..K 
         {
             let res = useHint(&h.poly[i], &v_add(&tmp, &ct0).poly[i]);
@@ -205,6 +176,7 @@ pub fn verify(pk: &[u8], m: &[u8], sig: &[u8]) -> bool
 
     let A = expandA(&rho);
     
+    /* generate mu */
     crh(&pk, &mut mu);
     let mut seed = [0u8; CRHBYTES+MESSAGE];
     seed[..CRHBYTES].clone_from_slice(&mu[..]);
@@ -229,7 +201,7 @@ pub fn verify(pk: &[u8], m: &[u8], sig: &[u8]) -> bool
     }
 
     /* check */
-   // assert_eq!(polyvec_chknorm(&z, (GAMMA1 - BETA) as i32), 0);
+    assert!(inf_norm(&z) < (GAMMA1 as i32 - BETA as i32));
     /* pack w1 */
     let mut wp = [0u8; W1_BYTES*K];
     for i in 0..K
@@ -244,7 +216,7 @@ pub fn verify(pk: &[u8], m: &[u8], sig: &[u8]) -> bool
     seed[CRHBYTES..].copy_from_slice(&wp[..]);
     crh(&seed, &mut c_hat);
     
-    
+    assert_eq!(c_hat, ch);
     for i in 0..SEEDBYTES 
     {
         if c_hat[i] != ch[i] {return false;}

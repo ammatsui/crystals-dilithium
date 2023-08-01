@@ -40,6 +40,7 @@ pub fn cmod(rr : i32, a: i32) -> i32
     {
         n -= t;
     }
+    assert!(n <= (a+1)>>1);
     n 
 }
 
@@ -104,29 +105,33 @@ pub fn lowBits_(r: i32) -> i32
 }
 
 
-pub fn makeHint_(z: i32, r: i32) -> u8
-{
-  const GAMMA2_I32 : i32 = ALPHA as i32;
-  if z > GAMMA2_I32 || z < Q_i32-GAMMA2_I32 || (z == Q_i32-GAMMA2_I32 && r != 0) {
-    return 1;
-  }
-  return 0;
-}
 // pub fn makeHint_(z: i32, r: i32) -> u8
 // {
-//     let r1 = highBits_(r);
-//     let v1 = highBits_(r+z);
-//     if r1 == v1
-//     {
-//         return 0;
-//     }
-//     return 1
+//   const GAMMA2_I32 : i32 = ALPHA as i32;
+//   if z > GAMMA2_I32 || z < Q_i32-GAMMA2_I32 || (z == Q_i32-GAMMA2_I32 && r != 0) {
+//     assert_eq!(useHint_(1, r), highBits_(z+r));
+//     return 1;
+//   }
+//   assert_eq!(useHint_(0, r), highBits_(z+r));
+//   return 0;
 // }
+pub fn makeHint_(z: i32, r: i32) -> u8
+{
+    let r1 = highBits_(r);
+    let v1 = highBits_(r+z);
+    if r1 == v1
+    {
+        assert_eq!(useHint_(0, r), highBits_(z+r));
+        return 0;
+    }
+    assert_eq!(useHint_(1, r), highBits_(z+r));
+    return 1
+}
 
 
 pub fn useHint_(h: u8, r: i32) -> i32
 {
-    let m = (Q-1/ ALPHA) as i32;
+    let m = ((Q-1)/ ALPHA) as i32;
     let (r1, r0) = decompose_(r);
     if h == (1 as u8)
     {
