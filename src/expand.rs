@@ -71,11 +71,6 @@ fn poly_mask(a: &mut Poly, rho: &[u8], nonce: u16)
     seed[CRHBYTES+1] = (nonce>>8) as u8;
     let mut b = [0; N*g1_bits/8];
     crh(&seed, &mut b);
-    // let mut hasher = Shake256::default();
-    // hasher.update(&seed);
-    // let mut reader = hasher.finalize_xof();
-    /* read all the data */
-   // reader.read(&mut b);
     /* no rejection sampling */
     unpack(&b, g1_bits, &mut a.coeff);
     for i in 0..N
