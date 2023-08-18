@@ -26,6 +26,8 @@ pub const N: usize = 256;
 pub const D: usize = 13;
 pub const ROOT: usize = 1753;
 
+//pub const ALPHA: usize = 2*GAMMA2;
+
 pub const SEEDBYTES: usize = 32;
 pub const CRHBYTES: usize = 64; // 48???
 

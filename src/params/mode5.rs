@@ -9,6 +9,7 @@ pub const TAU: usize = 60;
 pub const BETA: usize = 120;
 pub const GAMMA1: usize = 1 << 19;
 pub const GAMMA2: usize = (Q - 1) / 32;
+pub const ALPHA: usize = 2*GAMMA2;
 pub const OMEGA: usize = 75;
 
 pub const g1_bits: usize = 20;
