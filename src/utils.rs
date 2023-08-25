@@ -104,7 +104,6 @@ pub fn lowBits_(r: i32) -> i32
     r0
 }
 
-
 // pub fn makeHint_(z: i32, r: i32) -> u8
 // {
 //   const GAMMA2_I32 : i32 = ALPHA as i32;
@@ -115,6 +114,7 @@ pub fn lowBits_(r: i32) -> i32
 //   assert_eq!(useHint_(0, r), highBits_(z+r));
 //   return 0;
 // }
+
 pub fn makeHint_(z: i32, r: i32) -> u8
 {
     let r1 = highBits_(r);
@@ -144,32 +144,4 @@ pub fn useHint_(h: u8, r: i32) -> i32
     return r1;
 }
 
-// pub fn useHint_(hint: u8, r: i32) -> i32
-// {
-//   let (a1, a0) = decompose_( r);
-//   if hint == 0 {
-//     return a1;
-//   }
 
-//   if GAMMA2 == (Q - 1) / 32 {
-//     if a0 > 0 {
-//       return (a1 + 1) & 15;
-//     } else {
-//       return (a1 - 1) & 15;
-//     }
-//   } else {
-//     if a0 > 0 {
-//       if a1 == 43 {
-//         return 0;
-//       } else {
-//         return a1 + 1;
-//       };
-//     } else {
-//       if a1 == 0 {
-//         return 43;
-//       } else {
-//         return a1 - 1;
-//       }
-//     }
-//   }
-// }
