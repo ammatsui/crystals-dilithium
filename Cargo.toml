@@ -12,6 +12,6 @@ rand = "0.8.5"
 
 [features]
 # by default uses mode3 = Dilithium3
-mode2 = []
-mode3 = []
-mode5 = []
+mode512 = []
+mode768 = []
+mode1024 = []
