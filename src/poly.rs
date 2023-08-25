@@ -141,27 +141,6 @@ pub fn slow_mult(a: &Poly, b: &Poly) -> Poly
     res
 }
 
-// pub fn poly_chknorm(a: &Poly, b: i32) -> u8
-// {
-//   // It is ok to leak which coefficient violates the bound since
-//   // the probability for each coefficient is independent of secret
-//   // data but we must not leak the sign of the centralized representative.
-//   let mut t;
-
-//   if b > ((Q as i32) - 1) / 8 {
-//     return 1;
-//   }
-//   for i in 0..N {
-//     // Absolute value of centralized representative
-//     t = a.coeff[i] >> 31;
-//     t = a.coeff[i] - (t & 2 * a.coeff[i]);
-
-//     if t >= b {
-//       return 1;
-//     }
-//   }
-//   return 0;
-// }
 
 pub fn p_infnorm(p: &Poly) -> i32
 {
@@ -177,22 +156,6 @@ pub fn p_infnorm(p: &Poly) -> i32
     }
     norm
 }
-// pub fn p_infnorm(a: &Poly) -> usize
-// {  
-//     let mut t;
-//     let mut norm = 0i32;
-
-//     for i in 0..N {
-//       // Absolute value of centralized representative
-//       t = a.coeff[i] >> 31;
-//       t = a.coeff[i] - (t & 2 * a.coeff[i]);
-  
-//       if t >= norm {
-//         norm = t;
-//       }
-//     }
-//     return norm as usize;
-//   }
 
 
 /* vector of polynomials */
